@@ -78,7 +78,7 @@ check_env() {
 }
 
 checkout_latest_release() {
-  hash=$(git log --grep="Delete unused files and dependencies" -1 --pretty="%H")
+  hash=$(git log --grep="Update avatar image path in _config.yml" -1 --pretty="%H")
   git reset --hard "$hash"
 }
 
