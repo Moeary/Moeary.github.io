@@ -14,7 +14,7 @@
   "homepage": "https://github.com/cotes2020/jekyll-theme-chirpy/",
   "scripts": {
     "prebuild": "npx rimraf assets/js/dist",
-    "build": "NODE_ENV=production npx rollup -c --bundleConfigAsCjs",
+    "build": "cross-env NODE_ENV=production npx rollup -c --bundleConfigAsCjs",
     "prewatch": "npx rimraf assets/js/dist",
     "watch": "npx rollup -c --bundleConfigAsCjs -w",
     "test": "npx stylelint _sass/**/*.scss",
@@ -28,6 +28,7 @@
     "@commitlint/config-conventional": "^19.0.3",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-terser": "^0.4.4",
+    "cross-env": "^7.0.3",
     "husky": "^9.0.11",
     "rimraf": "^5.0.5",
     "rollup": "^4.12.0",
