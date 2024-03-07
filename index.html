@@ -1,27 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Home Page</title>
-</head>
-<body>
-  <h1>My Home Page</h1>
-  <ul id="links"></ul>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script>
-    $(document).ready(function() {
-      // Get all the links in the subfolders
-      var links = [];
-      $('.subfolder').each(function() {
-        links.push($(this).find('a').attr('href'));
-      });
-
-      // Add the links to the list on the home page
-      $('#links').append(links.map(function(link) {
-        return '<li><a href="' + link + '">' + link + '</a></li>';
-      }));
-    });
-  </script>
-</body>
-</html>
+---
+layout: home
+# Index page
+---
