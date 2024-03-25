@@ -2,18 +2,19 @@
 layout: compress
 ---
 
-<!doctype html>
+<!DOCTYPE html>
 
-{% include origin-type.html %}
-
-{% include lang.html %}
-
-{% if site.theme_mode %}
-  {% capture prefer_mode %}data-mode="{{ site.theme_mode }}"{% endcapture %}
-{% endif %}
+{% include origin-type.html %} {% include lang.html %} {% if site.theme_mode %}
+{% capture prefer_mode %}data-mode="{{ site.theme_mode }}"{% endcapture %} {%
+endif %}
 
 <!-- `site.alt_lang` can specify a language different from the UI -->
-<html lang="{{ page.lang | default: site.alt_lang | default: site.lang }}" {{ prefer_mode }}>
+<html
+  lang="{{ page.lang | default: site.alt_lang | default: site.lang }}"
+  {{
+  prefer_mode
+  }}
+>
   {% include head.html %}
 
   <body>
@@ -24,37 +25,38 @@ layout: compress
         {% include topbar.html lang=lang %}
 
         <div class="row flex-grow-1">
-          <main aria-label="Main Content" class="col-12 col-lg-11 col-xl-9 px-md-4">
-            {% if layout.refactor or layout.layout == 'default' %}
-              {% include refactor-content.html content=content lang=lang %}
-            {% else %}
-              {{ content }}
-            {% endif %}
+          <main
+            aria-label="Main Content"
+            class="col-12 col-lg-11 col-xl-9 px-md-4"
+          >
+            {% if layout.refactor or layout.layout == 'default' %} {% include
+            refactor-content.html content=content lang=lang %} {% else %} {{
+            content }} {% endif %}
           </main>
 
           <!-- panel -->
-          <aside aria-label="Panel" id="panel-wrapper" class="col-xl-3 ps-2 mb-5 text-muted">
+          <aside
+            aria-label="Panel"
+            id="panel-wrapper"
+            class="col-xl-3 ps-2 mb-5 text-muted"
+          >
             <div class="access">
-              {% include_cached update-list.html lang=lang %}
-              {% include_cached trending-tags.html lang=lang %}
+              {% include_cached update-list.html lang=lang %} {% include_cached
+              trending-tags.html lang=lang %}
             </div>
 
-            {% for _include in layout.panel_includes %}
-              {% assign _include_path = _include | append: '.html' %}
-              {% include {{ _include_path }} lang=lang %}
-            {% endfor %}
+            {% for _include in layout.panel_includes %} {% assign _include_path
+            = _include | append: '.html' %} {% include {{ _include_path }}
+            lang=lang %} {% endfor %}
           </aside>
         </div>
 
         <div class="row">
           <!-- tail -->
           <div id="tail-wrapper" class="col-12 col-lg-11 col-xl-9 px-md-4">
-            {% for _include in layout.tail_includes %}
-              {% assign _include_path = _include | append: '.html' %}
-              {% include {{ _include_path }} lang=lang %}
-            {% endfor %}
-
-            {% include_cached footer.html lang=lang %}
+            {% for _include in layout.tail_includes %} {% assign _include_path =
+            _include | append: '.html' %} {% include {{ _include_path }}
+            lang=lang %} {% endfor %} {% include_cached footer.html lang=lang %}
           </div>
         </div>
 
@@ -62,7 +64,11 @@ layout: compress
       </div>
 
       <aside aria-label="Scroll to Top">
-        <button id="back-to-top" type="button" class="btn btn-lg btn-box-shadow">
+        <button
+          id="back-to-top"
+          type="button"
+          class="btn btn-lg btn-box-shadow"
+        >
           <i class="fas fa-angle-up"></i>
         </button>
       </aside>
@@ -70,18 +76,84 @@ layout: compress
 
     <div id="mask"></div>
 
-    {% if site.pwa.enabled %}
-      {% include_cached notification.html lang=lang %}
+    {% if site.pwa.enabled %} {% include_cached notification.html lang=lang %}
     {% endif %}
 
     <!-- JavaScripts -->
 
-    {% include js-selector.html lang=lang %}
-
-    {% if page.mermaid %}
-      {% include mermaid.html %}
-    {% endif %}
-
-    {% include_cached search-loader.html lang=lang %}
+    {% include js-selector.html lang=lang %} {% if page.mermaid %} {% include
+    mermaid.html %} {% endif %} {% include_cached search-loader.html lang=lang
+    %}
   </body>
 </html>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/Dreamer-Paul/Pio@2.4/static/pio.min.css"
+/>
+<script
+  defer="defer"
+  src="https://cdn.jsdelivr.net/gh/Dreamer-Paul/Pio@2.4/static/l2d.min.js"
+></script>
+<script
+  defer="defer"
+  src="https://cdn.jsdelivr.net/gh/Dreamer-Paul/Pio@2.4/static/pio.min.js"
+  onload='
+    if (screen.width > screen.height)
+    {
+      let pio_container = document.createElement("div");
+      pio_container.classList.add("pio-container");
+      pio_container.classList.add("right");
+      document.body.insertAdjacentElement("beforeend", pio_container);
+      let pio_action = document.createElement("div");
+      pio_action.classList.add("pio-action");
+      pio_container.insertAdjacentElement("beforeend", pio_action);
+      let pio_canvas = document.createElement("canvas");
+      pio_canvas.id = "pio";
+      pio_canvas.style.width = "14rem";
+      pio_canvas.width = "300";
+      pio_canvas.height = "400";
+      pio_container.insertAdjacentElement("beforeend", pio_canvas);
+      let pio = new Paul_Pio({
+        "mode": "draggable",
+        "hidden": true,
+        "content": {
+          "skin": ["要换成我的朋友吗？", "让她放个假吧~"],
+          "custom": [{
+            "selector": "a",
+            "type": "link",
+          }, {
+            "selector": ".sidebar-toggle",
+            "text": "打开侧边栏叭~"
+          }, {
+            "selector": ".effect-info",
+            "text": "哇，你发现了什么！"
+          }, {
+            "selector": "#sidebar-search-input",
+            "text": "想搜索什么呢？很多干货哦！"
+          }, {
+            "selector": "#toc",
+            "text": "这是目录~"
+          }, {
+            "selector": ".page-title",
+            "text": "这是标题~"
+          }, {
+            "selector": ".v",
+            "text": "评论没有审核，要对自己的发言负责哦~"
+          }]
+        },
+        "model": [
+          "https:\/\/cdn.jsdelivr.net/gh/imuncle/live2d/model/33/model.2018.bls-winter.json",
+          "https:\/\/cdn.jsdelivr.net/gh/imuncle/live2d/model/platelet-2/model.json",
+          "https:\/\/cdn.jsdelivr.net/gh/imuncle/live2d/model/xiaomai/xiaomai.model.json",
+          "https:\/\/cdn.jsdelivr.net/gh/imuncle/live2d/model/mashiro/seifuku.model.json",
+          "https:\/\/cdn.jsdelivr.net/gh/imuncle/live2d/model/seele/model.json",
+          "https:\/\/cdn.jsdelivr.net/gh/imuncle/live2d/model/Violet/14.json",
+          "https:\/\/cdn.jsdelivr.net/gh/xiaoski/live2d_models_collection/Kobayaxi/Kobayaxi.model.json",
+          "https:\/\/cdn.jsdelivr.net/gh/xiaoski/live2d_models_collection/mikoto/mikoto.model.json",
+          "https:\/\/cdn.jsdelivr.net/gh/xiaoski/live2d_models_collection/uiharu/uiharu.model.json",
+          //"https:\/\/cdn.jsdelivr.net/gh/Moeary/pic_bed/live2dmodel/nagato/model0.json",
+        ]
+      });
+    }'
+></script>
