@@ -19,11 +19,11 @@ title: Moear's 主页 # the main title
 tagline: 归于平凡 # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  一个普通的人，一个普通的程序员，一个普通的学生。
+  鼠鼠我啊,要寄了捏
 
 # Fill in the protocol & hostname for your site.
 # e.g. 'https://username.github.io', note that it does not end with a '/'.
-url: ""
+url: "https://moeary.github.io"
 
 github:
   username: Moeary # change to your github username
