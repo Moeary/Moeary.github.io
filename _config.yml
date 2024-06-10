@@ -16,7 +16,7 @@ timezone: Asia/Shanghai
 
 title: Moear's 主页 # the main title
 
-tagline: 归于平凡 # it will display as the sub-title
+tagline: 没有Tag # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   鼠鼠我啊,要寄了捏
@@ -38,7 +38,7 @@ social:
   email: minecraftyyxx@gmail.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://twitter.com/CuvoMoear # change to your twitter homepage
+    # -  # change to your twitter homepage
     - https://github.com/moeary # change to your github homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
@@ -59,7 +59,7 @@ webmaster_verifications:
 # Web Analytics Settings
 analytics:
   google:
-    id: # fill in your Google Analytics ID
+    id: G-RRLYJKWFR6 # fill in your Google Analytics ID
   goatcounter:
     id: # fill in your GoatCounter ID
 
