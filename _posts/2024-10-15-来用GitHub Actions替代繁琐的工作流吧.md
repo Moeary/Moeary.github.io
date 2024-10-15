@@ -1,11 +1,9 @@
 ---
 title: 来用GitHub Actions替代繁琐的工作流吧
-date: 2024-10-15 18:54:00 +0800
+date: 2024-10-15 10:54:00 +0800
 categories: [Tech, Web]
 tags: [tech]     # TAG names should always be lowercase
 ---
-
-# 探索GitHub Actions的强大功能
 
 ## 前言
 
