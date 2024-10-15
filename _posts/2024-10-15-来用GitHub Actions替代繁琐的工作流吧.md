@@ -124,4 +124,6 @@ jobs:
 
 我这边就做了一个简单的[例子](https://github.com/Moeary/MUA_CheckIN),是MUA皮肤站的签到,可以通过看这个来学习GitHub Actions和简单的爬虫知识,然后再动手做到其他的自动化脚本
 
+另外顺带一提 我的博客也是通过GitHub Actions自动编译md文件部署到网页上面的
 
+![](https://raw.githubusercontent.com/Moeary/pic_bed/main/img/202410151113771.png)
