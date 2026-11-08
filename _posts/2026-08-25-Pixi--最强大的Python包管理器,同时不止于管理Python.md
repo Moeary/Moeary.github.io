@@ -5,100 +5,58 @@ categories: [Python, Package Management]
 tags: [tech, python, package management, pixi, conda, uv, ai]
 ---
 
-# 别再折腾环境了：为什么 Pixi 成了我所有项目的“终极启动器”？
+平时写项目最烦人的往往是配环境。开个 Python 深度学习或者音频项目，`pip` 装完一跑经常报缺动态库（DLL / SO），CUDA 和 PyTorch 版本还老打架。用 Conda 体积大、解析慢，不小心还会把 `base` 环境搞乱。要是再碰上 Java、Node 或者多语言混写的仓库，又得手动配 `JAVA_HOME`、装特定版本的 JDK 和 Node，光 README 里的前置环境说明就得写一大截。
 
-写代码最搞人心态的，从来不是业务逻辑，而是环境配置。
+这段时间我把手头的项目陆陆续续全切到了 [Pixi](https://pixi.prefix.dev/)，省心了不少。它用 Rust 重写了 Conda 生态的解析器，能同时管原生动态库、编译器、不同语言的运行时（Python、OpenJDK、Node、Rust 等）以及 PyPI 包，还顺带内置了任务编排。把 `pixi.toml` 配好之后，拉代码下来基本就能直接跑。
 
-过去我们的日常基本是这样的：
-* 开个 Python 深度学习或音频项目，`pip` 装完跑起来报各种缺少动态库（DLL / SO），CUDA 和 Torch 版本打架；
-* 用 Conda 吧，体积臃肿解析慢，动不动就污染 `base` 环境；
-* 换成 Java、Node 或混合项目，又要去系统里手动配 `JAVA_HOME`、装特定版本的 JDK 和 Node，README 里写满了密密麻麻的“前置环境安装说明”。
+## 给项目统一启动入口
 
-后来我把开发流全部切到了 **Pixi**。用了一段时间后，最大的感触只有两个字：**解脱**。
+现在写代码经常配合 Codex、Claude Code 这类 Agent 一起用。AI 改代码很快，但如果每个项目的虚拟环境、构建脚本都不一样，每次跑测试还是得自己切环境、翻启动命令。
 
-[Pixi](https://pixi.prefix.dev/) 并不是简单的“又一个 pip”，它底层基于 Rust 重写了 Conda 生态的解析器，把原生动态库、编译器、各种语言的运行时（Python / OpenJDK / Node / Rust 等）和项目任务编排全部揉进了一个现代化的工具流里。一旦项目脚手架搭好，后续开发体验简直爽到飞起。
-
----
-
-## AI 时代的开发闭环——从代码生成到一键跑通
-
-现在我们写代码越来越依赖 Codex、Claude Code 或者各种 Agent。很多时候 AI 几秒钟就把功能模块写好了，但在传统环境里，你还要手动切换环境、排查依赖缺漏、试探启动命令。
-
-在 Pixi 里，配合定义好的 `[tasks]`，整个项目的操作界面被彻底标准化：
-
-不管项目底层是 Python Web、PyTorch 复杂推理，还是 Java 插件编译，你在 `pixi.toml` 里定好任务，AI 改完代码后，你永远只需要一行命令搞定启动、构建和测试。
+用上 Pixi 的 `[tasks]` 之后，我把所有项目的常用操作都统一成了固定名字：
 
 ```bash
 pixi run start #启动
 pixi run build #构建
 ```
 
-### 懒人的极致：三字母启动一切
-既然所有项目的启动任务都可以统一命名为
+不管底下是 Python Web、PyTorch 推理还是 Java 插件编译，在 `pixi.toml` 里把任务写好，我自己或者让 AI 验证改动时都只用敲这两行命令。
 
-```bash
-pixi run start
-```
-
-那何必每次都敲完整的命令？直接在我们的bash要用到的配置文件 诸如 `.bashrc`、`zshrc` 或 PowerShell 配置文件里加一行 alias：
+既然启动命令都叫 `pixi run start`，干脆在 `.bashrc`、`.zshrc` 或者 PowerShell 配置文件里加一行 alias：
 
 ```bash
 alias prs="pixi run start"
 ```
 
-这就产生了一个极其舒适的开发体验：
-* 切换到桌面应用项目目录，终端敲 `prs`，GUI 界面直接拉起；
-* 切换到 Web 服务目录，终端敲 `prs`，开发服务器带热重载启动；
-* 切换到测试环境，终端敲 `prs`，本地沙盒跑起。
+这样进到桌面客户端目录敲 `prs` 就拉起 GUI，进到 Web 目录敲 `prs` 就开开发服，不用每次进目录先想一遍这个仓库该敲 `npm`、`python` 还是 `gradle`。
 
-**你甚至不需要在脑子里切换“这个项目该用 npm、python 还是 gradle”——3 个字母 `prs`，搞定一切。**
+## 目录隔离与硬链接省磁盘空间
 
----
+本地同时开好几个深度学习项目的时候，磁盘空间特别容易爆。普通 `venv` 每个项目都要把十几个 G 的 PyTorch、CUDA 和 C++ 扩展各自装一份，几个仓库下来几十上百 G 就没了，装全局又容易版本冲突。
 
-## 目录级隔离 + 跨目录硬链接，彻底拯救大容量库（如 PyTorch）
+Pixi 把所有依赖都装在项目根目录的 `.pixi` 文件夹下，不改系统 `PATH`，不要了直接删文件夹就行。同时它在底层用了统一缓存池加硬链接（Hardlink）：不管在 Windows 还是 Linux 上，只要不同项目用到同版本的 PyTorch、FFmpeg 或 CUDA，`.pixi` 里其实都是通过硬链接指向磁盘上的同一份文件。本地哪怕开十个 PyTorch 项目，环境彼此独立，实际也只占一份大库的空间。
 
-很多搞 AI 和深度学习的同学最头疼的就是磁盘空间。
+## 我自己的几个项目例子
 
-传统 `venv` 每个项目都要把十几个 G 的 PyTorch、CUDA、C++ 扩展重复拷一遍，几个项目下来固态硬盘直接见红；全局安装又会导致不同项目的版本互相冲突。
+我现在 GitHub 上维护的几个不同技术栈的仓库，都已经改用 Pixi 管依赖了：
 
-Pixi 在这方面做得非常巧妙：
-1. **严格的目录级隔离**：依赖全部装在当前项目根目录的 `.pixi` 下，不破坏系统 PATH，删掉文件夹即彻底清理，零残留。
-2. **底层内容寻址与硬链接（Hardlink）**：不管是 Windows 还是 Linux，Pixi 下载的所有包都会缓存在统一的内容池中。只要两个项目用的是相同版本的 Torch、FFmpeg 或 CUDA，`.pixi` 内部只会**通过硬链接直接指向同一份物理磁盘数据**。
+### 1. [CosyVoiceDesktop](https://github.com/Moeary/CosyVoiceDesktop)（AI 音频 + PyTorch + 原生库）
 
-这就意味着：你本地哪怕开了 10 个用 PyTorch 的项目，它们各自拥有独立的运行环境，但**实际只占了一份 PyTorch 的磁盘空间**，兼顾了绝对的隔离性和惊人的空间复用。
+这个有声小说生成工具依赖挺杂的，除了 PyTorch 核心，还有 C++ 扩展、WeTextProcessing 和 FFmpeg。以前别人拉代码先得自己装 FFmpeg 加进 `PATH`，再去对齐 PyTorch 和 CUDA 的 wheel 版本，非常繁琐。现在在 `pixi.toml` 里同时写好 Conda 源的 Python、FFmpeg、原生库和 PyPI 上的 PyTorch 依赖，拉下仓库直接敲 `pixi run start` 就能自动装齐跑起来。
 
----
+### 2. [IwaraTool](https://github.com/Moeary/IwaraTool)（PySide6 桌面端 + Nuitka 打包）
 
-## 真实项目实战——一个工具管穿所有技术栈
+这是一个 Fluent 风格的视频下载器，平时要跑 GUI、爬虫，发版还要走 Nuitka 编译打包。在 Pixi 里锁死 Python 3.11、PySide6 和编译器版本，再配好 `start`、`crawl`、`build` 三个 task，换台机器打包也不会突然报缺某个编译组件。
 
-我在 GitHub 维护的几个异构项目，现在全部基于 Pixi 实现了开箱即用：
+### 3. `Paper-YSM`（Minecraft 服务端 Java 插件 + Gradle）
 
-### 1. [CosyVoiceDesktop](https://github.com/Moeary/CosyVoiceDesktop)（重度 AI 音频 / PyTorch / 复杂底层依赖）
-有声小说生成工具涉及庞大的深度学习与音频处理链条：PyTorch 核心、C++ 扩展、WeTextProcessing 以及 FFmpeg 等多媒体库。
-* **过去**：用户和协作者要先装 FFmpeg 并加到 PATH，再解决 PyTorch CUDA 轮子匹配问题,非常麻烦非常繁琐。
-* **现在**：`pixi.toml` 同时声明 Conda 频道的 Python、FFmpeg、原生库以及 PyPI 上的 PyTorch 依赖。新人拉下代码直接 `pixi run start`，所有底层 C 库和模型推理运行时全自动补全并启动。
+这个仓库干脆连 Python 项目都不是，纯 Java 服务端插件，照样能用 Pixi 管。直接在配置里声明 `openjdk = "22"` 和 `gradle = "8.8"`，再把辅助 Python 脚本和构建命令写进 task。其他人拉下来不用配系统的 `JAVA_HOME`，也不用管 Gradle Wrapper，直接 `pixi run build` 就会调指定版本的 JDK 编译。
 
-### 2. [IwaraTool](https://github.com/Moeary/IwaraTool)（PySide6 桌面 GUI + Nuitka 二进制构建）
-一个现代 Fluent 风格的Iwara视频下载器，需要处理 GUI 依赖、爬虫任务和 Nuitka 原生打包流水线。
-* 通过 Pixi 声明固定版本的 Python 3.11、PySide6 及编译器，定义好 `start`、`crawl`、`build` 三个 task。无论在哪台机器上打包，编译环境严丝合缝，再也不用排查打包机上为什么“缺少某个 MSVC 编译组件”。
+## 用 `PIXI_HOME` 单独隔出一套全局工具目录
 
-### 3. `Paper-YSM`（Minecraft 服务端 Java 插件 + Gradle + 辅助脚本）
-这个项目根本直接不是 Python 项目了，是纯正的 Java 服务端插件开发,但是依然能使用Pixi进行管理, 直接在项目声明依赖 `openjdk = "22"` 和 `gradle = "8.8"`，配合辅助的 Python 脚本以及Pixi task任务直接做到了非常舒服的开发体验。
-* 协作者压根不要自己去配 `JAVA_HOME` 和安装 Gradle Wrapper，一条 `pixi run build` 直接拉起指定版本的 JDK 进行编译，开发环境永不漂移。
+平时折腾各种 AI Agent、MCP Server 和 Skill 的时候，经常要跑 `uvx` 调个 Python 小工具，或者跑 `npx` 起个前端脚本。直接在宿主系统里到处装全局环境，时间长了系统 `PATH` 会很乱。
 
----
-
-## 奇技淫巧——用 `PIXI_HOME` 打造纯净的全局 Skill / MCP 沙箱
-
-在当下的 AI Agent 和 MCP (Model Context Protocol) 时代，我们经常需要临时制作/下载一些 Skill \ MCP \ CLI 工具,比如有：
-
-* 跑个 `uvx` 临时执行某个 Python 分析工具；
-* 跑个 `npx` 调起某个前端脚手架；
-* 给本地的 AI Agent 配置一堆临时 MCP Server 执行环境。
-
-如果直接依赖操作系统的全局环境，我们的的系统 PATH 很快就会被各种工具污染得不成样子。
-
-此时我们就可以通过 `PIXI_HOME` 环境变量把 Pixi 的全局环境重定向到一个独立路径，利用 `pixi global` 构建一个纯净的“微型基础环境”：
+这种情况可以用 `PIXI_HOME` 环境变量把 Pixi 的全局安装目录指到一个单独的文件夹，再用 `pixi global` 把常用入口工具装进去：
 
 ```bash
 # 在环境变量中设置专属沙箱路径
@@ -108,18 +66,6 @@ export PIXI_HOME="/path/to/pixi_sandbox"
 pixi global install uv nodejs ffmpeg ruff
 ```
 
-这样操作后，你的宿主系统甚至不需要装全局 Python 或 Node，所有的临时生态调用（`uvx`、`npx`、MCP Skill 脚本）全都在这个轻量且隔离的沙箱里高速运行。想重置环境时直接删目录即可，宿主系统保持 100% 洁癖。
+配好之后，系统本身甚至不用装全局的 Python 或 Node，平时跑 `uvx`、`npx` 和各种 MCP 脚本都走这个目录。哪天想清掉重来，直接删这个文件夹就行，不会把系统搞乱。
 
----
-
-## 最后的最后,该用Pixi了,一旦用上就回不去的现代化体验
-
-在写代码这件事上，“偷懒”往往是推动工程进化的第一生产力。
-
-把繁琐的环境配置、动态链接库排错、跨语言工具链统一交给 Pixi，你获得的是：
-* **对人友好**：不用记激活命令，三字母 `prs` 跑通一切；
-* **对机器友好**：硬链接自动省空间，Torch 随便用不爆盘；
-* **对 AI 友好**：给 Agent 提供确定性极高的任务入口，拒绝执行幻觉；
-* **对系统友好**：`PIXI_HOME` 隔离沙箱，随时作为干净的 Skill 运行底座。
-
-如果你的工作流也经常涉及多语言、AI 模型、桌面客户端或者复杂的编译依赖，强烈建议试一下 Pixi——把心智从配环境的泥潭里拔出来，专注于写代码本身，这种体验才是真的爽。
+如果你平时手头也有多语言混用、PyTorch 大依赖或者桌面打包这类项目，挺推荐拿一个仓库试一下 Pixi 的，配好一次后面确实省不少事。
